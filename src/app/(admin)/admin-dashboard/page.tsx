@@ -84,6 +84,7 @@ export default function AdminDashboardPage() {
   const router = useRouter();
   const [userData, setUserData] = useState<UserData[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
   const [totalStats, setTotalStats] = useState<TotalStats>({
     users: 0,
     accounts: 0,
@@ -94,6 +95,7 @@ export default function AdminDashboardPage() {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
+        setLoading(true);
         const res = await apiClient.get<{ data: UserData[] }>("/admin/fetch-everything");
         if (res.data?.data && Array.isArray(res.data.data)) {
           setUserData(res.data.data);
@@ -107,6 +109,8 @@ export default function AdminDashboardPage() {
         const error = err as Error;
         console.error("Failed to fetch users:", error);
         setError(error.message || "Failed to load data");
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -178,6 +182,18 @@ export default function AdminDashboardPage() {
             <Button variant="outline" onClick={() => window.location.reload()}>
               Retry
             </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="p-6">
+        <Card className="border-destructive">
+          <CardContent className="space-y-4 pt-4">
+            <p>Loading Data</p>
           </CardContent>
         </Card>
       </div>
