@@ -19,6 +19,7 @@ const UserSidebar = () => {
   const dispatch = useDispatch();
   const router = useRouter();
   const pathname = usePathname();
+
   const handleLogout = () => {
     dispatch(logout());
     router.replace("/login");

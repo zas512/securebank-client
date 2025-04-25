@@ -24,7 +24,9 @@ interface Transaction {
   description: string;
   category: string;
   type: "credit" | "debit" | "transfer";
-  reference: string;
+  reference?: string;
+  fromAccountId?: string;
+  toAccountId?: string;
   date: string;
   createdAt: string;
   updatedAt: string;
@@ -184,6 +186,7 @@ export default function TransactionsPage() {
             <DialogTitle>Transaction Details</DialogTitle>
             <DialogDescription>{selectedTransaction?.description}</DialogDescription>
           </DialogHeader>
+
           {selectedTransaction && (
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
@@ -196,24 +199,45 @@ export default function TransactionsPage() {
                   <p className="font-medium capitalize">{selectedTransaction.accountId.type}</p>
                 </div>
               </div>
+
+              {/* 🆕 Show "From" and "To" only for transfers */}
+              {selectedTransaction.type === "transfer" && (
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-muted-foreground text-sm">From Account</p>
+                    <p className="font-medium">{selectedTransaction.fromAccountId}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground text-sm">To Account</p>
+                    <p className="font-medium">{selectedTransaction.toAccountId}</p>
+                  </div>
+                </div>
+              )}
+
               <div>
                 <p className="text-muted-foreground text-sm">Amount</p>
                 <p className={`font-medium ${getTextColor(selectedTransaction.type)}`}>
                   {selectedTransaction.type === "credit" ? "+" : "-"}${selectedTransaction.amount.toFixed(2)}
                 </p>
               </div>
+
               <div>
                 <p className="text-muted-foreground text-sm">Balance After</p>
                 <p className="font-medium">${selectedTransaction.balance.toFixed(2)}</p>
               </div>
-              <div>
-                <p className="text-muted-foreground text-sm">Reference</p>
-                <p className="font-medium">{selectedTransaction.reference}</p>
-              </div>
+
+              {selectedTransaction.reference && (
+                <div>
+                  <p className="text-muted-foreground text-sm">Reference</p>
+                  <p className="font-medium">{selectedTransaction.reference}</p>
+                </div>
+              )}
+
               <div>
                 <p className="text-muted-foreground text-sm">Date</p>
                 <p className="font-medium">{new Date(selectedTransaction.date).toLocaleString()}</p>
               </div>
+
               <div>
                 <p className="text-muted-foreground text-sm">Category</p>
                 <p className="font-medium">{selectedTransaction.category}</p>

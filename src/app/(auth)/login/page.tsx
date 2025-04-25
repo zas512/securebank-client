@@ -24,7 +24,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (user?.id) {
-      router.push(user.role === "admin" ? "/admin/dashboard" : "/dashboard");
+      router.push(user.role === "admin" ? "/admin-dashboard" : "/dashboard");
     }
   }, [router, user]);
 
@@ -57,12 +57,10 @@ export default function LoginPage() {
         email: formData.email,
         password: formData.password
       });
-
       if (!res.data.data.id) {
         setError("Login failed");
         return;
       }
-
       const userData = {
         id: res.data.data.id ?? "",
         name: res.data.data.name ?? "",
@@ -72,7 +70,6 @@ export default function LoginPage() {
         address: res.data.data.address ?? "",
         phone: res.data.data.phone ?? ""
       };
-
       dispatch(setUser(userData));
     } catch (error) {
       setError("An error occurred during login");

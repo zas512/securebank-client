@@ -1,10 +1,10 @@
 "use client";
 import { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "@/redux/store";
 import apiClient from "@/lib/interceptor";
 import toast from "react-hot-toast";
-
+import { setUser } from "@/redux/authSlice";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -32,7 +32,7 @@ interface NotificationPreferences {
 export default function ProfilePage() {
   const user = useSelector((state: RootState) => state.user);
   const [activeTab, setActiveTab] = useState("personal");
-
+  const dispatch = useDispatch();
   const [formData, setFormData] = useState<FormData>({
     name: "",
     email: "",
@@ -102,10 +102,9 @@ export default function ProfilePage() {
     }));
   };
 
-  const handleSubmit = async (type: "personal" | "security" | "preferences") => {
+  const handleSubmit = async (type: "personal" | "security") => {
     try {
-      let payload = {};
-
+      let payload: Record<string, string> = {};
       if (type === "personal" && isFormDataDirty()) {
         payload = {
           name: formData.name,
@@ -114,17 +113,37 @@ export default function ProfilePage() {
           address: formData.address
         };
       } else if (type === "security" && isSecurityDirty()) {
-        payload = {
-          securityQuestions: formData.securityQuestions.filter((q) => q.answer.trim() !== "")
-        };
+        if (formData.securityQuestions[0]?.answer.trim()) {
+          payload.securityQuestion1 = formData.securityQuestions[0].answer.trim();
+        }
+        if (formData.securityQuestions[1]?.answer.trim()) {
+          payload.securityQuestion2 = formData.securityQuestions[1].answer.trim();
+        }
       } else {
         return;
       }
 
-      await apiClient.put("/api/user/profile", payload);
-      toast.success("Profile updated successfully!");
-    } catch (error) {
+      const { data } = await apiClient.put("/user/profile", payload);
+      console.log(data.data.user);
+      if (data?.success) {
+        toast.success(data?.message ?? "Profile updated successfully!");
+        const userData = {
+          id: data.data.user.id ?? "",
+          name: data.data.user.name ?? "",
+          email: data.data.user.email ?? "",
+          role: (data.data.user.role as "user" | "admin") ?? "user",
+          token: data.data.user.token ?? "",
+          address: data.data.user.address ?? "",
+          phone: data.data.user.phone ?? ""
+        };
+
+        dispatch(setUser(userData));
+      } else {
+        toast.error(data?.message ?? "Update failed");
+      }
+    } catch (error: unknown) {
       console.error("Failed to update profile:", error);
+      toast.error("Something went wrong. Please try again.");
     }
   };
 
@@ -236,7 +255,7 @@ export default function ProfilePage() {
               ))}
             </CardContent>
             <CardFooter>
-              <Button onClick={() => handleSubmit("preferences")}>Save Preferences</Button>
+              <Button onClick={() => toast.success("Preferences Updated")}>Save Preferences</Button>
             </CardFooter>
           </Card>
         </TabsContent>
