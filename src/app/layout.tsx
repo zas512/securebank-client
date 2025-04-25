@@ -19,7 +19,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <Providers>
-          <div className="flex justify-center">{children}</div>
+          <div className="mx-auto flex max-w-[90rem] justify-center">{children}</div>
         </Providers>
       </body>
     </html>

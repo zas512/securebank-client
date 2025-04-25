@@ -6,6 +6,8 @@ interface User {
   email: string;
   role: "user" | "admin";
   token: string;
+  address: string;
+  phone: string;
 }
 
 const initialState: User = {
@@ -13,7 +15,9 @@ const initialState: User = {
   name: "",
   email: "",
   role: "user",
-  token: ""
+  token: "",
+  address: "",
+  phone: ""
 };
 
 const authSlice = createSlice({
