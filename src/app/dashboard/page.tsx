@@ -235,7 +235,7 @@ export default function DashboardPage() {
                         </div>
                         {account.type === "Credit Card" && (
                           <p className="text-muted-foreground text-xs">
-                            Available credit: ${(account.limit + account.balance).toFixed(2)}
+                            {/* Available credit: ${(account.limit + account.balance).toFixed(2)} */}
                           </p>
                         )}
                       </CardContent>

@@ -1,32 +1,27 @@
-"use client"
-
-import type React from "react"
-
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { useSelector, useDispatch } from "react-redux"
-import { Eye, EyeOff } from "lucide-react"
-
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { updateUser } from "@/redux/authSlice"
-import type { AppDispatch, RootState } from "@/redux/store"
-import { DashboardHeader } from "@/components/dashboard-header"
-import { DashboardSidebar } from "@/components/dashboard-sidebar"
+"use client";
+import type React from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useSelector } from "react-redux";
+import { Eye, EyeOff } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import type { RootState } from "@/redux/store";
+import { DashboardHeader } from "@/components/dashboard-header";
+import { DashboardSidebar } from "@/components/dashboard-sidebar";
 
 export default function ProfilePage() {
-  const router = useRouter()
-  const dispatch = useDispatch<AppDispatch>()
-  const { user, isAuthenticated } = useSelector((state: RootState) => state.auth)
+  const router = useRouter();
+  const user = useSelector((state: RootState) => state.user);
 
   const [personalInfo, setPersonalInfo] = useState({
     fullName: "",
     email: "",
-    phone: "",
-  })
+    phone: ""
+  });
 
   const [securityInfo, setSecurityInfo] = useState({
     currentPassword: "",
@@ -34,54 +29,40 @@ export default function ProfilePage() {
     confirmPassword: "",
     currentPin: "",
     newPin: "",
-    confirmPin: "",
-  })
+    confirmPin: ""
+  });
 
-  const [showCurrentPassword, setShowCurrentPassword] = useState(false)
-  const [showNewPassword, setShowNewPassword] = useState(false)
-  const [showCurrentPin, setShowCurrentPin] = useState(false)
-  const [showNewPin, setShowNewPin] = useState(false)
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showCurrentPin, setShowCurrentPin] = useState(false);
+  const [showNewPin, setShowNewPin] = useState(false);
 
-  const [isLoading, setIsLoading] = useState(false)
-  const [message, setMessage] = useState({ type: "", text: "" })
+  const [isLoading, setIsLoading] = useState(false);
+  const [message, setMessage] = useState({ type: "", text: "" });
 
-  useEffect(() => {
-    if (!isAuthenticated) {
-      router.push("/login")
-      return
-    }
-
-    if (user) {
-      setPersonalInfo({
-        fullName: user.fullName || "",
-        email: user.email || "",
-        phone: "",
-      })
-    }
-  }, [isAuthenticated, user, router])
 
   const handlePersonalInfoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
-    setPersonalInfo((prev) => ({ ...prev, [name]: value }))
-  }
+    const { name, value } = e.target;
+    setPersonalInfo((prev) => ({ ...prev, [name]: value }));
+  };
 
   const handleSecurityInfoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
+    const { name, value } = e.target;
 
     // For PIN fields, only allow numbers and limit to 4 digits
     if ((name === "currentPin" || name === "newPin" || name === "confirmPin") && value !== "") {
       if (!/^\d+$/.test(value) || value.length > 4) {
-        return
+        return;
       }
     }
 
-    setSecurityInfo((prev) => ({ ...prev, [name]: value }))
-  }
+    setSecurityInfo((prev) => ({ ...prev, [name]: value }));
+  };
 
   const handlePersonalInfoSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-    setMessage({ type: "", text: "" })
+    e.preventDefault();
+    setIsLoading(true);
+    setMessage({ type: "", text: "" });
 
     try {
       // In a real app, this would be an API call to update user info
@@ -95,30 +76,29 @@ export default function ProfilePage() {
       // })
 
       // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
       // Update user in Redux store
-      dispatch(updateUser({ fullName: personalInfo.fullName }))
 
-      setMessage({ type: "success", text: "Personal information updated successfully" })
+      setMessage({ type: "success", text: "Personal information updated successfully" });
     } catch (error) {
-      console.error("Update profile error:", error)
-      setMessage({ type: "error", text: "Failed to update personal information" })
+      console.error("Update profile error:", error);
+      setMessage({ type: "error", text: "Failed to update personal information" });
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const handlePasswordSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-    setMessage({ type: "", text: "" })
+    e.preventDefault();
+    setIsLoading(true);
+    setMessage({ type: "", text: "" });
 
     // Validate passwords
     if (securityInfo.newPassword !== securityInfo.confirmPassword) {
-      setMessage({ type: "error", text: "New passwords do not match" })
-      setIsLoading(false)
-      return
+      setMessage({ type: "error", text: "New passwords do not match" });
+      setIsLoading(false);
+      return;
     }
 
     try {
@@ -136,39 +116,39 @@ export default function ProfilePage() {
       // })
 
       // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      setMessage({ type: "success", text: "Password updated successfully" })
+      setMessage({ type: "success", text: "Password updated successfully" });
       setSecurityInfo((prev) => ({
         ...prev,
         currentPassword: "",
         newPassword: "",
-        confirmPassword: "",
-      }))
+        confirmPassword: ""
+      }));
     } catch (error) {
-      console.error("Update password error:", error)
-      setMessage({ type: "error", text: "Failed to update password" })
+      console.error("Update password error:", error);
+      setMessage({ type: "error", text: "Failed to update password" });
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const handlePinSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-    setMessage({ type: "", text: "" })
+    e.preventDefault();
+    setIsLoading(true);
+    setMessage({ type: "", text: "" });
 
     // Validate PINs
     if (securityInfo.newPin !== securityInfo.confirmPin) {
-      setMessage({ type: "error", text: "New PINs do not match" })
-      setIsLoading(false)
-      return
+      setMessage({ type: "error", text: "New PINs do not match" });
+      setIsLoading(false);
+      return;
     }
 
     if (securityInfo.newPin.length !== 4) {
-      setMessage({ type: "error", text: "PIN must be 4 digits" })
-      setIsLoading(false)
-      return
+      setMessage({ type: "error", text: "PIN must be 4 digits" });
+      setIsLoading(false);
+      return;
     }
 
     try {
@@ -186,22 +166,22 @@ export default function ProfilePage() {
       // })
 
       // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      setMessage({ type: "success", text: "PIN updated successfully" })
+      setMessage({ type: "success", text: "PIN updated successfully" });
       setSecurityInfo((prev) => ({
         ...prev,
         currentPin: "",
         newPin: "",
-        confirmPin: "",
-      }))
+        confirmPin: ""
+      }));
     } catch (error) {
-      console.error("Update PIN error:", error)
-      setMessage({ type: "error", text: "Failed to update PIN" })
+      console.error("Update PIN error:", error);
+      setMessage({ type: "error", text: "Failed to update PIN" });
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -210,7 +190,7 @@ export default function ProfilePage() {
         <DashboardSidebar />
         <main className="flex-1 overflow-auto">
           <div className="container p-4 md:p-6">
-            <h1 className="text-2xl font-bold mb-6">Profile Settings</h1>
+            <h1 className="mb-6 text-2xl font-bold">Profile Settings</h1>
 
             <Tabs defaultValue="personal" className="space-y-4">
               <TabsList>
@@ -247,7 +227,7 @@ export default function ProfilePage() {
                           required
                           disabled
                         />
-                        <p className="text-xs text-muted-foreground">Email cannot be changed</p>
+                        <p className="text-muted-foreground text-xs">Email cannot be changed</p>
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="phone">Phone Number (Optional)</Label>
@@ -297,7 +277,7 @@ export default function ProfilePage() {
                             type="button"
                             variant="ghost"
                             size="icon"
-                            className="absolute right-0 top-0 h-full px-3"
+                            className="absolute top-0 right-0 h-full px-3"
                             onClick={() => setShowCurrentPassword(!showCurrentPassword)}
                           >
                             {showCurrentPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -320,7 +300,7 @@ export default function ProfilePage() {
                             type="button"
                             variant="ghost"
                             size="icon"
-                            className="absolute right-0 top-0 h-full px-3"
+                            className="absolute top-0 right-0 h-full px-3"
                             onClick={() => setShowNewPassword(!showNewPassword)}
                           >
                             {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -377,7 +357,7 @@ export default function ProfilePage() {
                             type="button"
                             variant="ghost"
                             size="icon"
-                            className="absolute right-0 top-0 h-full px-3"
+                            className="absolute top-0 right-0 h-full px-3"
                             onClick={() => setShowCurrentPin(!showCurrentPin)}
                           >
                             {showCurrentPin ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -402,7 +382,7 @@ export default function ProfilePage() {
                             type="button"
                             variant="ghost"
                             size="icon"
-                            className="absolute right-0 top-0 h-full px-3"
+                            className="absolute top-0 right-0 h-full px-3"
                             onClick={() => setShowNewPin(!showNewPin)}
                           >
                             {showNewPin ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -442,5 +422,5 @@ export default function ProfilePage() {
         </main>
       </div>
     </div>
-  )
+  );
 }

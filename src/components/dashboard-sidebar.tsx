@@ -1,56 +1,54 @@
-"use client"
-
-import { usePathname } from "next/navigation"
-import Link from "next/link"
-import { BarChart3, CreditCard, ArrowRightLeft, User, Settings, Shield } from "lucide-react"
-
-import { Button } from "@/components/ui/button"
-import { useSelector } from "react-redux"
-import type { RootState } from "@/redux/store"
+"use client";
+import { usePathname } from "next/navigation";
+import Link from "next/link";
+import { BarChart3, CreditCard, ArrowRightLeft, User, Settings, Shield } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useSelector } from "react-redux";
+import type { RootState } from "@/redux/store";
 
 export function DashboardSidebar() {
-  const pathname = usePathname()
-  const { user } = useSelector((state: RootState) => state.auth)
+  const pathname = usePathname();
+  const user = useSelector((state: RootState) => state.user);
 
   const navigation = [
     {
       name: "Overview",
       href: "/dashboard",
       icon: BarChart3,
-      current: pathname === "/dashboard",
+      current: pathname === "/dashboard"
     },
     {
       name: "Accounts",
       href: "/accounts",
       icon: CreditCard,
-      current: pathname === "/accounts",
+      current: pathname === "/accounts"
     },
     {
       name: "Transactions",
       href: "/transactions",
       icon: ArrowRightLeft,
-      current: pathname === "/transactions",
+      current: pathname === "/transactions"
     },
     {
       name: "Profile",
       href: "/profile",
       icon: User,
-      current: pathname === "/profile",
+      current: pathname === "/profile"
     },
     {
       name: "Settings",
       href: "/settings",
       icon: Settings,
-      current: pathname === "/settings",
-    },
-  ]
+      current: pathname === "/settings"
+    }
+  ];
 
   return (
     <aside className="hidden w-64 border-r bg-gray-50 md:block">
       <div className="flex h-full flex-col gap-2 p-4">
         <div className="py-2">
-          <h2 className="text-lg font-semibold">{user?.fullName || "User"}</h2>
-          <p className="text-sm text-gray-500">{user?.email || "user@example.com"}</p>
+          <h2 className="text-lg font-semibold">{user?.name ?? "User"}</h2>
+          <p className="text-sm text-gray-500">{user?.email ?? "user@example.com"}</p>
         </div>
         <div className="space-y-1 py-2">
           {navigation.map((item) => (
@@ -83,5 +81,5 @@ export function DashboardSidebar() {
         </div>
       </div>
     </aside>
-  )
+  );
 }

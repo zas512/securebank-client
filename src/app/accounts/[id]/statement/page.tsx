@@ -1,24 +1,19 @@
-"use client"
+"use client";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useSelector } from "react-redux";
+import { Download, Filter, ChevronLeft, DollarSign, ArrowRightLeft } from "lucide-react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { DashboardHeader } from "@/components/dashboard-header";
+import type { RootState } from "@/redux/store";
 
-import type React from "react"
-
-import { useState, useEffect } from "react"
-import { useParams, useRouter } from "next/navigation"
-import { useSelector } from "react-redux"
-import { Download, Filter, ChevronLeft, DollarSign, ArrowRightLeft } from "lucide-react"
-import Link from "next/link"
-
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { DashboardHeader } from "@/components/dashboard-header"
-import type { RootState } from "@/redux/store"
-
-// Mock data for demonstration
 const transactions = [
   {
     id: "tx_1",
@@ -26,7 +21,7 @@ const transactions = [
     description: "Grocery Store",
     amount: -85.43,
     type: "debit",
-    category: "Shopping",
+    category: "Shopping"
   },
   {
     id: "tx_2",
@@ -34,7 +29,7 @@ const transactions = [
     description: "Salary Deposit",
     amount: 3200.0,
     type: "credit",
-    category: "Income",
+    category: "Income"
   },
   {
     id: "tx_3",
@@ -42,7 +37,7 @@ const transactions = [
     description: "Electric Bill",
     amount: -124.79,
     type: "debit",
-    category: "Utilities",
+    category: "Utilities"
   },
   {
     id: "tx_4",
@@ -50,7 +45,7 @@ const transactions = [
     description: "Restaurant",
     amount: -56.2,
     type: "debit",
-    category: "Dining",
+    category: "Dining"
   },
   {
     id: "tx_5",
@@ -58,7 +53,7 @@ const transactions = [
     description: "Online Transfer",
     amount: -500.0,
     type: "transfer",
-    category: "Transfer",
+    category: "Transfer"
   },
   {
     id: "tx_6",
@@ -66,7 +61,7 @@ const transactions = [
     description: "ATM Withdrawal",
     amount: -200.0,
     type: "debit",
-    category: "Cash",
+    category: "Cash"
   },
   {
     id: "tx_7",
@@ -74,7 +69,7 @@ const transactions = [
     description: "Online Shopping",
     amount: -89.99,
     type: "debit",
-    category: "Shopping",
+    category: "Shopping"
   },
   {
     id: "tx_8",
@@ -82,110 +77,75 @@ const transactions = [
     description: "Interest Payment",
     amount: 12.45,
     type: "credit",
-    category: "Interest",
-  },
-]
+    category: "Interest"
+  }
+];
 
 export default function AccountStatementPage() {
-  const router = useRouter()
-  const params = useParams()
-  const { isAuthenticated } = useSelector((state: RootState) => state.auth)
-  const { accounts } = useSelector((state: RootState) => state.accounts)
+  const router = useRouter();
+  const user = useSelector((state: RootState) => state.user);
 
-  const [account, setAccount] = useState<any>(null)
   const [statement, setStatement] = useState({
     startDate: "2025-04-01",
     endDate: "2025-04-30",
-    transactions: transactions,
-  })
+    transactions: transactions
+  });
   const [filters, setFilters] = useState({
     type: "all",
     category: "all",
-    search: "",
-  })
+    search: ""
+  });
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      router.push("/login")
-      return
+    if (!user?.id) {
+      router.push("/login");
     }
-
-    // Find account by ID
-    const foundAccount = accounts.find((acc) => acc.id === params.id)
-    if (foundAccount) {
-      setAccount(foundAccount)
-    } else {
-      // In a real app, you would fetch the account from the API
-      setAccount({
-        id: params.id,
-        type: "Checking",
-        number: "****4567",
-        balance: 2543.87,
-        currency: "USD",
-      })
-    }
-
-    // In a real app, you would fetch the statement from the API
-    // const fetchStatement = async () => {
-    //   const response = await fetch(`/api/accounts/${params.id}/statement?startDate=${statement.startDate}&endDate=${statement.endDate}`, {
-    //     headers: {
-    //       Authorization: `Bearer ${localStorage.getItem('token')}`
-    //     }
-    //   })
-    //   const data = await response.json()
-    //   setStatement(prev => ({ ...prev, transactions: data }))
-    // }
-    // fetchStatement()
-  }, [isAuthenticated, router, params.id, accounts])
+  }, [router, user.id]);
 
   const handleDateChange = (name: string, value: string) => {
-    setStatement((prev) => ({ ...prev, [name]: value }))
-  }
+    setStatement((prev) => ({ ...prev, [name]: value }));
+  };
 
   const handleFilterChange = (name: string, value: string) => {
-    setFilters((prev) => ({ ...prev, [name]: value }))
-  }
+    setFilters((prev) => ({ ...prev, [name]: value }));
+  };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFilters((prev) => ({ ...prev, search: e.target.value }))
-  }
+    setFilters((prev) => ({ ...prev, search: e.target.value }));
+  };
 
   const filteredTransactions = statement.transactions.filter((transaction) => {
     // Filter by type
     if (filters.type !== "all" && transaction.type !== filters.type) {
-      return false
+      return false;
     }
 
     // Filter by category
     if (filters.category !== "all" && transaction.category !== filters.category) {
-      return false
+      return false;
     }
 
     // Filter by search term
     if (filters.search && !transaction.description.toLowerCase().includes(filters.search.toLowerCase())) {
-      return false
+      return false;
     }
 
-    return true
-  })
+    return true;
+  });
 
-  const totalIncome = filteredTransactions.filter((tx) => tx.amount > 0).reduce((sum, tx) => sum + tx.amount, 0)
+  const totalIncome = filteredTransactions.filter((tx) => tx.amount > 0).reduce((sum, tx) => sum + tx.amount, 0);
 
-  const totalExpenses = filteredTransactions.filter((tx) => tx.amount < 0).reduce((sum, tx) => sum + tx.amount, 0)
+  const totalExpenses = filteredTransactions.filter((tx) => tx.amount < 0).reduce((sum, tx) => sum + tx.amount, 0);
 
   const downloadStatement = () => {
     // In a real app, this would generate and download a PDF statement
-    alert("Statement download functionality would be implemented here")
-  }
-
-  if (!account) {
-    return <div>Loading...</div>
-  }
+    alert("Statement download functionality would be implemented here");
+  };
 
   return (
     <div className="flex min-h-screen flex-col">
       <DashboardHeader />
-      <main className="flex-1 container py-8">
+      <main className="container flex-1 py-8">
         <div className="mb-6">
           <Button variant="ghost" className="mb-4" asChild>
             <Link href="/accounts">
@@ -193,10 +153,10 @@ export default function AccountStatementPage() {
               Back to Accounts
             </Link>
           </Button>
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
-              <h1 className="text-2xl font-bold">{account.type} Account Statement</h1>
-              <p className="text-gray-500">Account Number: {account.number}</p>
+              <h1 className="text-2xl font-bold">{} Account Statement</h1>
+              <p className="text-gray-500">Account Number: {}</p>
             </div>
             <Button onClick={downloadStatement}>
               <Download className="mr-2 h-4 w-4" />
@@ -205,14 +165,14 @@ export default function AccountStatementPage() {
           </div>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-3 mb-6">
+        <div className="mb-6 grid gap-6 md:grid-cols-3">
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium">Current Balance</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">${account.balance.toFixed(2)}</div>
-              <p className="text-xs text-muted-foreground">As of {new Date().toLocaleDateString()}</p>
+              <div className="text-2xl font-bold">${}</div>
+              <p className="text-muted-foreground text-xs">As of {new Date().toLocaleDateString()}</p>
             </CardContent>
           </Card>
           <Card>
@@ -221,7 +181,7 @@ export default function AccountStatementPage() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-green-600">+${totalIncome.toFixed(2)}</div>
-              <p className="text-xs text-muted-foreground">For selected period</p>
+              <p className="text-muted-foreground text-xs">For selected period</p>
             </CardContent>
           </Card>
           <Card>
@@ -230,7 +190,7 @@ export default function AccountStatementPage() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-red-600">${totalExpenses.toFixed(2)}</div>
-              <p className="text-xs text-muted-foreground">For selected period</p>
+              <p className="text-muted-foreground text-xs">For selected period</p>
             </CardContent>
           </Card>
         </div>
@@ -241,8 +201,8 @@ export default function AccountStatementPage() {
             <CardDescription>Select the date range for your statement</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="space-y-2 flex-1">
+            <div className="flex flex-col gap-4 md:flex-row">
+              <div className="flex-1 space-y-2">
                 <Label htmlFor="startDate">Start Date</Label>
                 <Input
                   id="startDate"
@@ -251,7 +211,7 @@ export default function AccountStatementPage() {
                   onChange={(e) => handleDateChange("startDate", e.target.value)}
                 />
               </div>
-              <div className="space-y-2 flex-1">
+              <div className="flex-1 space-y-2">
                 <Label htmlFor="endDate">End Date</Label>
                 <Input
                   id="endDate"
@@ -269,7 +229,7 @@ export default function AccountStatementPage() {
 
         <Card>
           <CardHeader>
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
               <div>
                 <CardTitle>Transaction History</CardTitle>
                 <CardDescription>
@@ -392,7 +352,7 @@ export default function AccountStatementPage() {
               )}
             </div>
           </CardContent>
-          <CardFooter className="border-t p-4 flex justify-between">
+          <CardFooter className="flex justify-between border-t p-4">
             <p className="text-sm text-gray-500">
               Showing {filteredTransactions.length} of {transactions.length} transactions
             </p>
@@ -403,5 +363,5 @@ export default function AccountStatementPage() {
         </Card>
       </main>
     </div>
-  )
+  );
 }

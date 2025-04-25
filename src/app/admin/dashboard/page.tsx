@@ -1,108 +1,44 @@
-"use client"
-
-import type React from "react"
-
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { useSelector } from "react-redux"
-import Link from "next/link"
-import { Shield, Users, CreditCard, ArrowRightLeft, Search, ChevronRight } from "lucide-react"
-
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import type { RootState } from "@/redux/store"
+"use client";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useSelector } from "react-redux";
+import Link from "next/link";
+import { Shield, Users, CreditCard, ArrowRightLeft, Search } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import type { RootState } from "@/redux/store";
 
 interface User {
-  id: string
-  fullName: string
-  email: string
-  role: string
-  createdAt: string
-  accountsCount: number
-  totalBalance: number
+  id: string;
+  fullName: string;
+  email: string;
+  role: string;
+  createdAt: string;
+  accountsCount: number;
+  totalBalance: number;
 }
 
 export default function AdminDashboardPage() {
-  const router = useRouter()
-  const { user, isAuthenticated } = useSelector((state: RootState) => state.auth)
+  const router = useRouter();
+  const user = useSelector((state: RootState) => state.user);
 
-  const [users, setUsers] = useState<User[]>([])
-  const [filteredUsers, setFilteredUsers] = useState<User[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [searchTerm, setSearchTerm] = useState("")
-  const [activeTab, setActiveTab] = useState("users")
-
-  useEffect(() => {
-    if (!isAuthenticated) {
-      router.push("/login")
-      return
-    }
-
-    // Check if user is admin
-    if (user?.role !== "admin") {
-      router.push("/dashboard")
-      return
-    }
-
-    // Fetch users
-    const fetchUsers = async () => {
-      try {
-        const token = localStorage.getItem("token")
-        const response = await fetch("/api/admin/users", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch users")
-        }
-
-        const data = await response.json()
-        setUsers(data)
-        setFilteredUsers(data)
-      } catch (error) {
-        console.error("Error fetching users:", error)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    fetchUsers()
-  }, [isAuthenticated, router, user])
-
-  useEffect(() => {
-    if (searchTerm.trim() === "") {
-      setFilteredUsers(users)
-    } else {
-      const filtered = users.filter(
-        (user) =>
-          user.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          user.email.toLowerCase().includes(searchTerm.toLowerCase()),
-      )
-      setFilteredUsers(filtered)
-    }
-  }, [searchTerm, users])
+  const [searchTerm, setSearchTerm] = useState("");
+  const [activeTab, setActiveTab] = useState("users");
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(e.target.value)
-  }
-
-  // Calculate statistics
-  const totalUsers = users.length
-  const totalAccounts = users.reduce((sum, user) => sum + user.accountsCount, 0)
-  const totalBalance = users.reduce((sum, user) => sum + user.totalBalance, 0)
+    setSearchTerm(e.target.value);
+  };
 
   return (
     <div className="flex min-h-screen flex-col">
-      <header className="sticky top-0 z-10 bg-white border-b">
+      <header className="sticky top-0 z-10 border-b bg-white">
         <div className="container flex h-16 items-center justify-between px-4">
           <div className="flex items-center gap-4">
-            <Link href="/admin/dashboard" className="flex items-center gap-2 font-bold text-xl">
+            <Link href="/admin/dashboard" className="flex items-center gap-2 text-xl font-bold">
               <Shield className="h-6 w-6" />
               <span>SecureBank Admin</span>
             </Link>
@@ -112,7 +48,7 @@ export default function AdminDashboardPage() {
               Switch to User Dashboard
             </Button>
             <Avatar>
-              <AvatarFallback>{user?.fullName?.charAt(0) || "A"}</AvatarFallback>
+              <AvatarFallback>{user?.name?.charAt(0) ?? "A"}</AvatarFallback>
             </Avatar>
           </div>
         </div>
@@ -121,7 +57,7 @@ export default function AdminDashboardPage() {
         <aside className="hidden w-64 border-r bg-gray-50 md:block">
           <div className="flex h-full flex-col gap-2 p-4">
             <div className="py-2">
-              <h2 className="text-lg font-semibold">{user?.fullName || "Admin"}</h2>
+              <h2 className="text-lg font-semibold">{user?.name ?? "Admin"}</h2>
               <p className="text-sm text-gray-500">{user?.email || "admin@example.com"}</p>
               <Badge className="mt-2">Admin</Badge>
             </div>
@@ -169,39 +105,39 @@ export default function AdminDashboardPage() {
                   <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                       <CardTitle className="text-sm font-medium">Total Users</CardTitle>
-                      <Users className="h-4 w-4 text-muted-foreground" />
+                      <Users className="text-muted-foreground h-4 w-4" />
                     </CardHeader>
                     <CardContent>
-                      <div className="text-2xl font-bold">{totalUsers}</div>
-                      <p className="text-xs text-muted-foreground">
+                      {/* <div className="text-2xl font-bold">{totalUsers}</div>
+                      <p className="text-muted-foreground text-xs">
                         {users.filter((u) => u.role === "admin").length} admins,{" "}
                         {users.filter((u) => u.role === "user").length} regular users
-                      </p>
+                      </p> */}
                     </CardContent>
                   </Card>
                   <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                       <CardTitle className="text-sm font-medium">Total Accounts</CardTitle>
-                      <CreditCard className="h-4 w-4 text-muted-foreground" />
+                      <CreditCard className="text-muted-foreground h-4 w-4" />
                     </CardHeader>
                     <CardContent>
-                      <div className="text-2xl font-bold">{totalAccounts}</div>
-                      <p className="text-xs text-muted-foreground">
+                      {/* <div className="text-2xl font-bold">{totalAccounts}</div>
+                      <p className="text-muted-foreground text-xs">
                         Avg. {(totalAccounts / Math.max(1, users.filter((u) => u.role === "user").length)).toFixed(1)}{" "}
                         accounts per user
-                      </p>
+                      </p> */}
                     </CardContent>
                   </Card>
                   <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                       <CardTitle className="text-sm font-medium">Total Balance</CardTitle>
-                      <ArrowRightLeft className="h-4 w-4 text-muted-foreground" />
+                      <ArrowRightLeft className="text-muted-foreground h-4 w-4" />
                     </CardHeader>
                     <CardContent>
-                      <div className="text-2xl font-bold">${totalBalance.toFixed(2)}</div>
-                      <p className="text-xs text-muted-foreground">
+                      {/* <div className="text-2xl font-bold">${totalBalance.toFixed(2)}</div>
+                      <p className="text-muted-foreground text-xs">
                         Avg. ${(totalBalance / Math.max(1, totalAccounts)).toFixed(2)} per account
-                      </p>
+                      </p> */}
                     </CardContent>
                   </Card>
                 </div>
@@ -214,7 +150,7 @@ export default function AdminDashboardPage() {
                   <CardContent>
                     <div className="mb-4">
                       <div className="relative">
-                        <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                        <Search className="text-muted-foreground absolute top-2.5 left-2 h-4 w-4" />
                         <Input
                           placeholder="Search users by name or email..."
                           className="pl-8"
@@ -224,26 +160,26 @@ export default function AdminDashboardPage() {
                       </div>
                     </div>
                     <div className="rounded-md border">
-                      <div className="grid grid-cols-12 gap-2 border-b bg-muted/50 p-4 font-medium">
+                      <div className="bg-muted/50 grid grid-cols-12 gap-2 border-b p-4 font-medium">
                         <div className="col-span-4">User</div>
                         <div className="col-span-2">Role</div>
                         <div className="col-span-2">Accounts</div>
                         <div className="col-span-3">Total Balance</div>
-                        <div className="col-span-1"></div>
+                        <div className="col-span-1" />
                       </div>
-                      {isLoading ? (
+                      {/* {isLoading ? (
                         <div className="p-4 text-center">Loading users...</div>
                       ) : filteredUsers.length > 0 ? (
                         <div className="divide-y">
                           {filteredUsers.map((user) => (
-                            <div key={user.id} className="grid grid-cols-12 gap-2 p-4 items-center">
+                            <div key={user.id} className="grid grid-cols-12 items-center gap-2 p-4">
                               <div className="col-span-4 flex items-center gap-2">
                                 <Avatar className="h-8 w-8">
                                   <AvatarFallback>{user.fullName.charAt(0)}</AvatarFallback>
                                 </Avatar>
                                 <div>
                                   <p className="font-medium">{user.fullName}</p>
-                                  <p className="text-sm text-muted-foreground">{user.email}</p>
+                                  <p className="text-muted-foreground text-sm">{user.email}</p>
                                 </div>
                               </div>
                               <div className="col-span-2">
@@ -264,12 +200,12 @@ export default function AdminDashboardPage() {
                         </div>
                       ) : (
                         <div className="p-4 text-center">No users found matching your search.</div>
-                      )}
+                      )} */}
                     </div>
                   </CardContent>
                   <CardFooter className="flex justify-between">
-                    <p className="text-sm text-muted-foreground">
-                      Showing {filteredUsers.length} of {users.length} users
+                    <p className="text-muted-foreground text-sm">
+                      {/* Showing {filteredUsers.length} of {users.length} users */}
                     </p>
                   </CardFooter>
                 </Card>
@@ -282,7 +218,7 @@ export default function AdminDashboardPage() {
                     <CardDescription>View and manage all accounts in the system</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-center py-8">Account management features coming soon.</p>
+                    <p className="py-8 text-center">Account management features coming soon.</p>
                   </CardContent>
                 </Card>
               </TabsContent>
@@ -294,7 +230,7 @@ export default function AdminDashboardPage() {
                     <CardDescription>Monitor all transactions in the system</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-center py-8">Transaction monitoring features coming soon.</p>
+                    <p className="py-8 text-center">Transaction monitoring features coming soon.</p>
                   </CardContent>
                 </Card>
               </TabsContent>
@@ -303,5 +239,5 @@ export default function AdminDashboardPage() {
         </main>
       </div>
     </div>
-  )
+  );
 }

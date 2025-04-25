@@ -1,60 +1,45 @@
-"use client"
-
-import type React from "react"
-
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { useSelector } from "react-redux"
-import { Lock, Eye, Clock } from "lucide-react"
-
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Switch } from "@/components/ui/switch"
-import { Label } from "@/components/ui/label"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import type { RootState } from "@/redux/store"
-import { DashboardHeader } from "@/components/dashboard-header"
-import { DashboardSidebar } from "@/components/dashboard-sidebar"
+"use client";
+import type React from "react";
+import { useState } from "react";
+import { Lock, Eye, Clock } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { DashboardHeader } from "@/components/dashboard-header";
+import { DashboardSidebar } from "@/components/dashboard-sidebar";
 
 export default function SettingsPage() {
-  const router = useRouter()
-  const { isAuthenticated } = useSelector((state: RootState) => state.auth)
-
   const [securitySettings, setSecuritySettings] = useState({
     twoFactorAuth: false,
     loginNotifications: true,
     transactionNotifications: true,
-    sessionTimeout: "30",
-  })
+    sessionTimeout: "30"
+  });
 
-  const [isLoading, setIsLoading] = useState(false)
-  const [message, setMessage] = useState({ type: "", text: "" })
-
-  useEffect(() => {
-    if (!isAuthenticated) {
-      router.push("/login")
-    }
-  }, [isAuthenticated, router])
+  const [isLoading, setIsLoading] = useState(false);
+  const [message, setMessage] = useState({ type: "", text: "" });
 
   const handleSwitchChange = (name: string) => {
     setSecuritySettings((prev) => ({
       ...prev,
-      [name]: !prev[name as keyof typeof prev],
-    }))
-  }
+      [name]: !prev[name as keyof typeof prev]
+    }));
+  };
 
   const handleSelectChange = (name: string, value: string) => {
     setSecuritySettings((prev) => ({
       ...prev,
-      [name]: value,
-    }))
-  }
+      [name]: value
+    }));
+  };
 
   const handleSecuritySettingsSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-    setMessage({ type: "", text: "" })
+    e.preventDefault();
+    setIsLoading(true);
+    setMessage({ type: "", text: "" });
 
     try {
       // In a real app, this would be an API call to update security settings
@@ -68,16 +53,16 @@ export default function SettingsPage() {
       // })
 
       // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      setMessage({ type: "success", text: "Security settings updated successfully" })
+      setMessage({ type: "success", text: "Security settings updated successfully" });
     } catch (error) {
-      console.error("Update security settings error:", error)
-      setMessage({ type: "error", text: "Failed to update security settings" })
+      console.error("Update security settings error:", error);
+      setMessage({ type: "error", text: "Failed to update security settings" });
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -86,7 +71,7 @@ export default function SettingsPage() {
         <DashboardSidebar />
         <main className="flex-1 overflow-auto">
           <div className="container p-4 md:p-6">
-            <h1 className="text-2xl font-bold mb-6">Settings</h1>
+            <h1 className="mb-6 text-2xl font-bold">Settings</h1>
 
             <Tabs defaultValue="security" className="space-y-4">
               <TabsList>
@@ -106,7 +91,7 @@ export default function SettingsPage() {
                       <div className="flex items-center justify-between">
                         <div className="space-y-0.5">
                           <Label htmlFor="twoFactorAuth">Two-Factor Authentication</Label>
-                          <p className="text-sm text-muted-foreground">
+                          <p className="text-muted-foreground text-sm">
                             Add an extra layer of security to your account
                           </p>
                         </div>
@@ -120,7 +105,7 @@ export default function SettingsPage() {
                       <div className="flex items-center justify-between">
                         <div className="space-y-0.5">
                           <Label htmlFor="loginNotifications">Login Notifications</Label>
-                          <p className="text-sm text-muted-foreground">
+                          <p className="text-muted-foreground text-sm">
                             Receive notifications when someone logs into your account
                           </p>
                         </div>
@@ -147,7 +132,7 @@ export default function SettingsPage() {
                             <SelectItem value="120">2 hours</SelectItem>
                           </SelectContent>
                         </Select>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-muted-foreground text-sm">
                           Automatically log out after a period of inactivity
                         </p>
                       </div>
@@ -218,7 +203,7 @@ export default function SettingsPage() {
                     <div className="flex items-center justify-between">
                       <div className="space-y-0.5">
                         <Label htmlFor="transactionNotifications">Transaction Notifications</Label>
-                        <p className="text-sm text-muted-foreground">Receive notifications for all transactions</p>
+                        <p className="text-muted-foreground text-sm">Receive notifications for all transactions</p>
                       </div>
                       <Switch
                         id="transactionNotifications"
@@ -229,7 +214,7 @@ export default function SettingsPage() {
                     <div className="flex items-center justify-between">
                       <div className="space-y-0.5">
                         <Label htmlFor="balanceAlerts">Balance Alerts</Label>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-muted-foreground text-sm">
                           Receive alerts when your balance falls below a threshold
                         </p>
                       </div>
@@ -238,7 +223,7 @@ export default function SettingsPage() {
                     <div className="flex items-center justify-between">
                       <div className="space-y-0.5">
                         <Label htmlFor="marketingEmails">Marketing Emails</Label>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-muted-foreground text-sm">
                           Receive emails about new features and promotions
                         </p>
                       </div>
@@ -287,7 +272,7 @@ export default function SettingsPage() {
                     <div className="flex items-center justify-between">
                       <div className="space-y-0.5">
                         <Label htmlFor="darkMode">Dark Mode</Label>
-                        <p className="text-sm text-muted-foreground">Switch between light and dark theme</p>
+                        <p className="text-muted-foreground text-sm">Switch between light and dark theme</p>
                       </div>
                       <Switch id="darkMode" />
                     </div>
@@ -302,5 +287,5 @@ export default function SettingsPage() {
         </main>
       </div>
     </div>
-  )
+  );
 }
